@@ -1,5 +1,7 @@
 package com.javarush.caesarcipher.cipher;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,56 +17,99 @@ public class CaesarCipher {
             'э', 'ю', 'я', ' ', '!', '.', ',', '"', '?', ':',
             '\\', '\'');
 
+    public static final List<String> KEYWORDS
+            = Arrays.asList(
+            " не ", " я ", " и ", " на ", " с ",
+            " в ", " к ", " под ", " из ", ", ",
+            ": ", ". ", "! ", "? ");
 
-    public static void encrypt(Path pathToDecryptedFile, Path pathToEncryptedFile, int cipherKey) {
-        StringBuilder sb = new StringBuilder();
 
-        try {
-            String decryptedText = Files.readString(pathToDecryptedFile);
-            for (char symbol : decryptedText.toCharArray()) {
-                if (ALPHABET.contains(Character.toLowerCase(symbol))) {
+    public static void encrypt(Path pathToDecryptedFile, Path pathToEncryptedFile, int cipherKey) throws IOException {
+        StringBuilder builderResultText = new StringBuilder();
 
-                    int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
-                    int encryptSymbolIndex = (alphabetSymbolIndex + cipherKey) % alphabetSize();
-                    char encryptSymbol = getAlphabetSymbol(encryptSymbolIndex);
+        String decryptedText = Files.readString(pathToDecryptedFile);
 
-                    sb.append(encryptSymbol);
-                } else {
-                    sb.append(symbol);
-                }
+        for (char symbol : decryptedText.toCharArray()) {
+            if (ALPHABET.contains(Character.toLowerCase(symbol))) {
+
+                int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
+                int encryptSymbolIndex = (alphabetSymbolIndex + cipherKey) % alphabetSize();
+                char encryptSymbol = getAlphabetSymbol(encryptSymbolIndex);
+
+                builderResultText.append(encryptSymbol);
+            } else {
+                builderResultText.append(symbol);
             }
-            Files.writeString(pathToEncryptedFile, sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
+        Files.writeString(pathToEncryptedFile, builderResultText.toString());
     }
 
-    public static void decrypt(Path pathToEncryptedFile, Path pathToDecryptedFile, int cipherKey) {
-        StringBuilder sb = new StringBuilder();
+    public static void decrypt(Path pathToEncryptedFile, Path pathToDecryptedFile, int cipherKey) throws IOException {
+        StringBuilder builderResultText = new StringBuilder();
 
-        try {
-            String encryptedText = Files.readString(pathToEncryptedFile);
-            for (char symbol : encryptedText.toCharArray()) {
-                if (ALPHABET.contains(Character.toLowerCase(symbol))) {
+        String encryptedText = Files.readString(pathToEncryptedFile);
 
-                    int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
-                    int decryptSymbolIndex = (alphabetSymbolIndex + (alphabetSize() - cipherKey)) % alphabetSize();
-                    char decryptSymbol = getAlphabetSymbol(decryptSymbolIndex);
+        for (char symbol : encryptedText.toCharArray()) {
+            if (ALPHABET.contains(Character.toLowerCase(symbol))) {
 
-                    sb.append(decryptSymbol);
-                } else {
-                    sb.append(symbol);
-                }
+                int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
+                int decryptSymbolIndex = (alphabetSymbolIndex + (alphabetSize() - cipherKey)) % alphabetSize();
+                char decryptSymbol = getAlphabetSymbol(decryptSymbolIndex);
+
+                builderResultText.append(decryptSymbol);
+            } else {
+                builderResultText.append(symbol);
             }
-            Files.writeString(pathToDecryptedFile, sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        Files.writeString(pathToDecryptedFile, builderResultText.toString());
     }
 
-    public static void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile) {
+    public static void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile) throws IOException {
+        StringBuilder builderResultText = new StringBuilder();
+        StringBuilder builderEncryptedText = new StringBuilder();
 
+        try (var readerEncryptedText = new BufferedReader(new FileReader(pathToEncryptedFile.toString()))) {
+            while (readerEncryptedText.ready()) {
+                builderEncryptedText.append(readerEncryptedText.readLine());
+            }
+
+            String encryptedText = builderEncryptedText.toString();
+            int cipherKey = 1;
+
+            while (cipherKey < alphabetSize()) {
+
+                for (char symbol : encryptedText.toCharArray()) {
+                    if (ALPHABET.contains(Character.toLowerCase(symbol))) {
+
+                        int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
+                        int decryptSymbolIndex = (alphabetSymbolIndex + cipherKey) % alphabetSize();
+                        char decryptSymbol = getAlphabetSymbol(decryptSymbolIndex);
+
+                        builderResultText.append(decryptSymbol);
+                    } else {
+                        builderResultText.append(symbol);
+                    }
+                }
+
+                String resultString = builderResultText.toString();
+                int keywordHitsCount = 0;
+
+                for (String keyword : KEYWORDS) {
+                    if (resultString.contains(keyword)) keywordHitsCount++;
+                }
+                System.out.println(keywordHitsCount);
+
+                if (keywordHitsCount > 3 && (resultString.endsWith(".") || resultString.endsWith("!") || resultString.endsWith("?"))
+                ) {
+                    System.out.println("Ключ шифрования: " + (alphabetSize() - cipherKey));
+                    Files.writeString(pathToDecryptedFile, resultString);
+                    return;
+                } else {
+                    builderResultText.setLength(0);
+                    cipherKey++;
+                }
+            }
+        }
     }
 
 
