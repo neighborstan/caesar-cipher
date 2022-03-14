@@ -17,6 +17,8 @@ public class ConsoleText {
     public static final String ENCRYPTION_SELECTED = "Выбрано шифрование файла!";
     public static final String DECRYPTION_SELECTED = "Расшифровываем файл по ключу!";
     public static final String BRUTE_FORCE_SELECTED = "Расшифровываем файл подбором!";
+    public static final String CHOISE_OF_BRUTE_FORCE_KEY = "Выберите размер текста для повышения точности подбора";
+    public static final String BRUTE_FORCE_KEYS_LIST = "S - небольшой текст\nM - средний текст\nXL - большой текст";
     public static final String ACTIONS_LIST_TEXT = "" +
             UserDialog.ENCRYPT + " - зашифровать файл\n" +
             UserDialog.DECRYPT + " - расшифровать файл по ключу\n" +

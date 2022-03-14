@@ -21,7 +21,7 @@ public class CaesarCipher {
             = Arrays.asList(
             " не ", " я ", " и ", " на ", " с ",
             " в ", " к ", " под ", " из ", ", ",
-            ": ", ". ", "! ", "? ");
+            ": ", ". ", "! ", "? ", " - ", " у ");
 
 
     public static void encrypt(Path pathToDecryptedFile, Path pathToEncryptedFile, int cipherKey) throws IOException {
@@ -64,7 +64,7 @@ public class CaesarCipher {
         Files.writeString(pathToDecryptedFile, builderResultText.toString());
     }
 
-    public static void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile) throws IOException {
+    public static void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile, int bruteForceKey) throws IOException {
         StringBuilder builderResultText = new StringBuilder();
         StringBuilder builderEncryptedText = new StringBuilder();
 
@@ -97,9 +97,8 @@ public class CaesarCipher {
                 for (String keyword : KEYWORDS) {
                     if (resultString.contains(keyword)) keywordHitsCount++;
                 }
-                System.out.println(keywordHitsCount);
 
-                if (keywordHitsCount > 3 && (resultString.endsWith(".") || resultString.endsWith("!") || resultString.endsWith("?"))
+                if (keywordHitsCount >= bruteForceKey && (resultString.endsWith(".") || resultString.endsWith("!") || resultString.endsWith("?"))
                 ) {
                     System.out.println("Ключ шифрования: " + (alphabetSize() - cipherKey));
                     Files.writeString(pathToDecryptedFile, resultString);

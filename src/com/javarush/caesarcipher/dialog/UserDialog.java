@@ -19,6 +19,7 @@ public class UserDialog {
     private Path pathToDecryptedFile;
     private Path pathToEncryptedFile;
     private int cipherKey;
+    private int bruteForceKey;
 
 
     public void start() throws IOException {
@@ -71,7 +72,11 @@ public class UserDialog {
 
                 System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
                 pathToDecryptedFile = getPathToDecryptedFile(scanner);
-                CaesarCipher.bruteForce(pathToEncryptedFile, pathToDecryptedFile);
+
+                System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
+                System.out.println(BRUTE_FORCE_KEYS_LIST);
+                bruteForceKey = getBruteForceKey(scanner);
+                CaesarCipher.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
 
                 System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
             }
@@ -90,6 +95,26 @@ public class UserDialog {
             }
         }
         return key;
+    }
+
+    private int getBruteForceKey(Scanner scanner) {
+        int bruteForceKey;
+        while (true) {
+            try {
+                String stringKey = scanner.nextLine();
+                bruteForceKey = switch (stringKey) {
+                    case "S" -> 2;
+                    case "M" -> 5;
+                    case "XL" -> 8;
+                    default -> throw new NumberFormatException();
+                };
+
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
+            }
+        }
+        return bruteForceKey;
     }
 
     private Path getPathToEncryptedFile(Scanner scanner) {
