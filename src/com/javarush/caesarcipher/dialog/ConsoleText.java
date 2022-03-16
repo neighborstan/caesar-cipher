@@ -10,7 +10,7 @@ public class ConsoleText {
              """;
     public static final String ENTER_CIPHER_KEY = "Введите ключ шифрования, от 1 до " + (UserDialog.alphabetSize - 1) + " включительно...";
     public static final String CHOISE_OF_ACTION = "Выберите действие из представленных";
-    public static final String ENTER_PATH_TO_DECRYPTED_FILE = "Введите путь к расшифрованному файлу...";
+    public static final String ENTER_PATH_TO_DECRYPTED_FILE = "Введите путь к незашифрованному файлу...";
     public static final String ENTER_PATH_TO_ENCRYPTED_FILE = "Введите путь к зашифрованному файлу...";
     public static final String FILE_NOT_EXIST_WARNING = "Такого файла не существует, проверьте путь и имя файла!";
     public static final String RESULT_ACTION = "Результат находится в файле ";

@@ -10,11 +10,17 @@ import java.util.Scanner;
 import static com.javarush.caesarcipher.dialog.ConsoleText.*;
 
 public class UserDialog {
-    public static final String ENCRYPT = "E";
-    public static final String DECRYPT = "D";
+    public static final String ENCRYPT     = "E";
+    public static final String DECRYPT     = "D";
     public static final String BRUTE_FORCE = "B";
 
-    public static final int alphabetSize = CaesarCipher.alphabetSize();
+    private static final String SMALL_TEXT  = "S";
+    private static final String MEDIUM_TEXT = "M";
+    private static final String LARGE_TEXT  = "XL";
+
+    private static final CaesarCipher caesarCipher = CaesarCipher.getInstance();
+
+    public static final int alphabetSize = caesarCipher.alphabetSize();
 
     private Path pathToDecryptedFile;
     private Path pathToEncryptedFile;
@@ -22,118 +28,125 @@ public class UserDialog {
     private int bruteForceKey;
 
 
-    public void start() throws IOException {
+
+    public void start() {
         System.out.println(HELLO_TEXT);
-        System.out.println(CHOISE_OF_ACTION);
-        System.out.println(ACTIONS_LIST_TEXT);
+
 
         try (Scanner scanner = new Scanner(System.in)) {
             String action;
-            while (true) {
-                action = scanner.nextLine();
-                if (action.equals(ENCRYPT) || action.equals(DECRYPT) || action.equals(BRUTE_FORCE)) {
-                    break;
-                }
+            do {
                 System.out.println(CHOISE_OF_ACTION);
-            }
+                System.out.println(ACTIONS_LIST_TEXT);
 
-            if (action.equals(ENCRYPT)) {
-                System.out.println(ENCRYPTION_SELECTED);
-                System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
-                pathToDecryptedFile = getPathToDecryptedFile(scanner);
+                action = scanner.nextLine();
+            } while (!ENCRYPT.equals(action) && !DECRYPT.equals(action) && !BRUTE_FORCE.equals(action));
 
-                System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
-                pathToEncryptedFile = getPathToEncryptedFile(scanner);
+            switch (action) {
+                case ENCRYPT -> {
 
-                System.out.println(ENTER_CIPHER_KEY);
-                cipherKey = getValidCipherKey(scanner);
-                CaesarCipher.encrypt(pathToDecryptedFile, pathToEncryptedFile, cipherKey);
+                    System.out.println(ENCRYPTION_SELECTED);
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    pathToDecryptedFile = getPathToFile(scanner);
 
-                System.out.println(RESULT_ACTION + pathToEncryptedFile.toAbsolutePath());
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    pathToEncryptedFile = getPathToFile(scanner);
 
-            } else if (action.equals(DECRYPT)) {
-                System.out.println(DECRYPTION_SELECTED);
-                System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
-                pathToEncryptedFile = getPathToEncryptedFile(scanner);
+                    cipherKey = getValidCipherKey(scanner);
 
-                System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
-                pathToDecryptedFile = getPathToDecryptedFile(scanner);
+                    caesarCipher.encrypt(pathToDecryptedFile, pathToEncryptedFile, cipherKey);
 
-                System.out.println(ENTER_CIPHER_KEY);
-                cipherKey = getValidCipherKey(scanner);
-                CaesarCipher.decrypt(pathToEncryptedFile, pathToDecryptedFile, cipherKey);
+                    System.out.println(RESULT_ACTION + pathToEncryptedFile.toAbsolutePath());
+                }
+                case DECRYPT -> {
 
-                System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                    System.out.println(DECRYPTION_SELECTED);
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    pathToEncryptedFile = getPathToFile(scanner);
 
-            } else if (action.equals(BRUTE_FORCE)) {
-                System.out.println(BRUTE_FORCE_SELECTED);
-                System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
-                pathToEncryptedFile = getPathToEncryptedFile(scanner);
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    pathToDecryptedFile = getPathToFile(scanner);
 
-                System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
-                pathToDecryptedFile = getPathToDecryptedFile(scanner);
+                    cipherKey = getValidCipherKey(scanner);
 
-                System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
-                System.out.println(BRUTE_FORCE_KEYS_LIST);
-                bruteForceKey = getBruteForceKey(scanner);
-                CaesarCipher.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
+                    caesarCipher.decrypt(pathToEncryptedFile, pathToDecryptedFile, cipherKey);
 
-                System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                    System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                }
+                case BRUTE_FORCE -> {
+
+                    System.out.println(BRUTE_FORCE_SELECTED);
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    pathToEncryptedFile = getPathToFile(scanner);
+
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    pathToDecryptedFile = getPathToFile(scanner);
+
+                    bruteForceKey = getBruteForceKey(scanner);
+
+                    caesarCipher.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
+
+                    System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                }
             }
         }
     }
 
     private int getValidCipherKey(Scanner scanner) {
         int key;
+        String keyString;
+
         while (true) {
-            try {
-                key = Integer.parseInt(scanner.nextLine());
-                if (key < 1 || key >= alphabetSize) throw new NumberFormatException();
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println(ENTER_CIPHER_KEY);
+            System.out.println(ENTER_CIPHER_KEY);
+
+            keyString = scanner.nextLine();
+            if (isInteger(keyString)) {
+                key = Integer.parseInt(keyString);
+
+                if (key > 0 && key < alphabetSize) {
+                    return key;
+                }
             }
         }
-        return key;
     }
 
     private int getBruteForceKey(Scanner scanner) {
         int bruteForceKey;
+        String stringKey;
+
         while (true) {
-            try {
-                String stringKey = scanner.nextLine();
-                bruteForceKey = switch (stringKey) {
-                    case "S" -> 2;
-                    case "M" -> 5;
-                    case "XL" -> 8;
-                    default -> throw new NumberFormatException();
-                };
+            System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
+            System.out.println(BRUTE_FORCE_KEYS_LIST);
 
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
+            stringKey = scanner.nextLine();
+            switch (stringKey) {
+                case SMALL_TEXT -> bruteForceKey  = 2;
+                case MEDIUM_TEXT -> bruteForceKey = 5;
+                case LARGE_TEXT -> bruteForceKey  = 8;
+                default -> {
+                    continue;
+                }
             }
+            return bruteForceKey;
         }
-        return bruteForceKey;
     }
 
-    private Path getPathToEncryptedFile(Scanner scanner) {
-        Path pathToEncryptedFile = Path.of(scanner.nextLine());
+    private Path getPathToFile(Scanner scanner) {
+        Path pathToFile = Path.of(scanner.nextLine());
 
-        while (!Files.isRegularFile(pathToEncryptedFile)) {
+        while (!Files.isRegularFile(pathToFile)) {
             System.out.println(FILE_NOT_EXIST_WARNING);
-            pathToEncryptedFile = Path.of(scanner.nextLine());
+            pathToFile = Path.of(scanner.nextLine());
         }
-        return pathToEncryptedFile;
+        return pathToFile;
     }
 
-    private Path getPathToDecryptedFile(Scanner scanner) {
-        Path pathToDecryptedFile = Path.of(scanner.nextLine());
-
-        while (!Files.isRegularFile(pathToDecryptedFile)) {
-            System.out.println(FILE_NOT_EXIST_WARNING);
-            pathToDecryptedFile = Path.of(scanner.nextLine());
+    private boolean isInteger(String keyString) {
+        try {
+            Integer.parseInt(keyString);
+        } catch(NumberFormatException | NullPointerException e) {
+            return false;
         }
-        return pathToDecryptedFile;
+        return true;
     }
 }

@@ -1,14 +1,12 @@
 package com.javarush.caesarcipher.cipher;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
 public class CaesarCipher {
+    private static CaesarCipher instance;
+
     private static final List<Character> ALPHABET
             = Arrays.asList(
             'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и',
@@ -17,63 +15,59 @@ public class CaesarCipher {
             'э', 'ю', 'я', ' ', '!', '.', ',', '"', '?', ':',
             '\\', '\'');
 
-    public static final List<String> KEYWORDS
+    private static final List<String> KEYWORDS
             = Arrays.asList(
             " не ", " я ", " и ", " на ", " с ",
             " в ", " к ", " под ", " из ", ", ",
             ": ", ". ", "! ", "? ", " - ", " у ");
 
+    private CaesarCipher() {}
 
-    public static void encrypt(Path pathToDecryptedFile, Path pathToEncryptedFile, int cipherKey) throws IOException {
+    public static CaesarCipher getInstance(){
+        if(instance == null){
+            instance = new CaesarCipher();
+        }
+        return instance;
+    }
+
+    public void encrypt(Path pathToDecryptedFile, Path pathToEncryptedFile, int cipherKey) {
         StringBuilder builderResultText = new StringBuilder();
 
-        String decryptedText = Files.readString(pathToDecryptedFile);
+        String decryptedText = FileProcessing.readString(pathToDecryptedFile);
 
         for (char symbol : decryptedText.toCharArray()) {
             if (ALPHABET.contains(Character.toLowerCase(symbol))) {
 
                 int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
                 int encryptSymbolIndex = (alphabetSymbolIndex + cipherKey) % alphabetSize();
-                char encryptSymbol = getAlphabetSymbol(encryptSymbolIndex);
-
-                builderResultText.append(encryptSymbol);
-            } else {
-                builderResultText.append(symbol);
+                symbol = getAlphabetSymbol(encryptSymbolIndex);
             }
+                builderResultText.append(symbol);
         }
-        Files.writeString(pathToEncryptedFile, builderResultText.toString());
+        FileProcessing.writeString(pathToEncryptedFile, builderResultText.toString());
     }
 
-    public static void decrypt(Path pathToEncryptedFile, Path pathToDecryptedFile, int cipherKey) throws IOException {
+    public void decrypt(Path pathToEncryptedFile, Path pathToDecryptedFile, int cipherKey) {
         StringBuilder builderResultText = new StringBuilder();
 
-        String encryptedText = Files.readString(pathToEncryptedFile);
+        String encryptedText = FileProcessing.readString(pathToEncryptedFile);
 
         for (char symbol : encryptedText.toCharArray()) {
             if (ALPHABET.contains(Character.toLowerCase(symbol))) {
 
                 int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
                 int decryptSymbolIndex = (alphabetSymbolIndex + (alphabetSize() - cipherKey)) % alphabetSize();
-                char decryptSymbol = getAlphabetSymbol(decryptSymbolIndex);
-
-                builderResultText.append(decryptSymbol);
-            } else {
-                builderResultText.append(symbol);
+                symbol = getAlphabetSymbol(decryptSymbolIndex);
             }
+                builderResultText.append(symbol);
         }
-        Files.writeString(pathToDecryptedFile, builderResultText.toString());
+        FileProcessing.writeString(pathToDecryptedFile, builderResultText.toString());
     }
 
-    public static void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile, int bruteForceKey) throws IOException {
+    public void bruteForce(Path pathToEncryptedFile, Path pathToDecryptedFile, int bruteForceKey) {
         StringBuilder builderResultText = new StringBuilder();
-        StringBuilder builderEncryptedText = new StringBuilder();
 
-        try (var readerEncryptedText = new BufferedReader(new FileReader(pathToEncryptedFile.toString()))) {
-            while (readerEncryptedText.ready()) {
-                builderEncryptedText.append(readerEncryptedText.readLine());
-            }
-
-            String encryptedText = builderEncryptedText.toString();
+            String encryptedText = FileProcessing.readString(pathToEncryptedFile);
             int cipherKey = 1;
 
             while (cipherKey < alphabetSize()) {
@@ -83,12 +77,9 @@ public class CaesarCipher {
 
                         int alphabetSymbolIndex = getAlphabetSymbolIndex(symbol);
                         int decryptSymbolIndex = (alphabetSymbolIndex + cipherKey) % alphabetSize();
-                        char decryptSymbol = getAlphabetSymbol(decryptSymbolIndex);
-
-                        builderResultText.append(decryptSymbol);
-                    } else {
-                        builderResultText.append(symbol);
+                        symbol = getAlphabetSymbol(decryptSymbolIndex);
                     }
+                        builderResultText.append(symbol);
                 }
 
                 String resultString = builderResultText.toString();
@@ -101,26 +92,25 @@ public class CaesarCipher {
                 if (keywordHitsCount >= bruteForceKey && (resultString.endsWith(".") || resultString.endsWith("!") || resultString.endsWith("?"))
                 ) {
                     System.out.println("Ключ шифрования: " + (alphabetSize() - cipherKey));
-                    Files.writeString(pathToDecryptedFile, resultString);
+                    FileProcessing.writeString(pathToDecryptedFile, resultString);
                     return;
                 } else {
                     builderResultText.setLength(0);
                     cipherKey++;
                 }
             }
-        }
+
     }
 
-
-    private static int getAlphabetSymbolIndex(char symbol) {
+    private int getAlphabetSymbolIndex(char symbol) {
         return ALPHABET.indexOf(Character.toLowerCase(symbol));
     }
 
-    private static char getAlphabetSymbol(int encodeSymbolIndex) {
+    private char getAlphabetSymbol(int encodeSymbolIndex) {
         return ALPHABET.get(encodeSymbolIndex);
     }
 
-    public static int alphabetSize() {
+    public int alphabetSize() {
         return ALPHABET.size();
     }
 }
