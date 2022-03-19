@@ -9,12 +9,12 @@ import java.util.Scanner;
 import static com.javarush.caesarcipher.dialog.ConsoleText.*;
 
 public class UserDialog {
-    private static final String BRUTE_FORCE_KEYS_LIST = "%s - небольшой текст\n%s - средний текст\n%s - большой текст".formatted(SMALL_TEXT_KEY, MEDIUM_TEXT_KEY, LARGE_TEXT_KEY);
-    private static final String ACTIONS_LIST_TEXT = "%s - зашифровать файл\n%s - расшифровать файл по ключу\n%s - расшифровать файл подбором (brute force)".formatted(ENCRYPT_ACTION_KEY, DECRYPT_ACTION_KEY, BRUTE_FORCE_ACTION_KEY);
+    private final String BRUTE_FORCE_KEYS_LIST = "%s - небольшой текст\n%s - средний текст\n%s - большой текст".formatted(SMALL_TEXT_KEY, MEDIUM_TEXT_KEY, LARGE_TEXT_KEY);
+    private final String ACTIONS_LIST_TEXT = "%s - зашифровать файл\n%s - расшифровать файл по ключу\n%s - расшифровать файл подбором (brute force)".formatted(ENCRYPT_ACTION_KEY, DECRYPT_ACTION_KEY, BRUTE_FORCE_ACTION_KEY);
 
-    private static final CaesarCipher CAESAR_CIPHER = CaesarCipher.getInstance();
+    private final CaesarCipher CAESAR_CIPHER = CaesarCipher.getInstance();
 
-    private static final int ALPHABET_SIZE = CAESAR_CIPHER.alphabetSize();
+    private final int ALPHABET_SIZE = CAESAR_CIPHER.alphabetSize();
 
     private Path pathToDecryptedFile;
     private Path pathToEncryptedFile;
@@ -29,60 +29,64 @@ public class UserDialog {
         try (Scanner scanner = new Scanner(System.in)) {
             String action;
             do {
-                System.out.println(CHOISE_OF_ACTION);
+                System.out.println(CHOISE_OF_ACTION_MESSAGE);
                 System.out.println(ACTIONS_LIST_TEXT);
 
                 action = scanner.nextLine();
-            } while (!ENCRYPT_ACTION_KEY.equals(action) && !DECRYPT_ACTION_KEY.equals(action) && !BRUTE_FORCE_ACTION_KEY.equals(action));
+            } while (!isActionValid(action));
 
             switch (action) {
                 case ENCRYPT_ACTION_KEY -> {
 
-                    System.out.println(ENCRYPTION_SELECTED);
-                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    System.out.println(ENCRYPTION_SELECTED_MESSAGE);
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE_MESSAGE);
                     pathToDecryptedFile = getPathToFile(scanner);
 
-                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE_MESSAGE);
                     pathToEncryptedFile = getPathToFile(scanner);
 
                     cipherKey = getValidCipherKey(scanner);
 
                     CAESAR_CIPHER.encrypt(pathToDecryptedFile, pathToEncryptedFile, cipherKey);
 
-                    System.out.println(RESULT_ACTION + pathToEncryptedFile.toAbsolutePath());
+                    System.out.println(RESULT_ACTION_MESSAGE + pathToEncryptedFile.toAbsolutePath());
                 }
                 case DECRYPT_ACTION_KEY -> {
 
-                    System.out.println(DECRYPTION_SELECTED);
-                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    System.out.println(DECRYPTION_SELECTED_MESSAGE);
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE_MESSAGE);
                     pathToEncryptedFile = getPathToFile(scanner);
 
-                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE_MESSAGE);
                     pathToDecryptedFile = getPathToFile(scanner);
 
                     cipherKey = getValidCipherKey(scanner);
 
                     CAESAR_CIPHER.decrypt(pathToEncryptedFile, pathToDecryptedFile, cipherKey);
 
-                    System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                    System.out.println(ConsoleText.RESULT_ACTION_MESSAGE + pathToDecryptedFile.toAbsolutePath());
                 }
                 case BRUTE_FORCE_ACTION_KEY -> {
 
-                    System.out.println(BRUTE_FORCE_SELECTED);
-                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE);
+                    System.out.println(BRUTE_FORCE_SELECTED_MESSAGE);
+                    System.out.println(ENTER_PATH_TO_ENCRYPTED_FILE_MESSAGE);
                     pathToEncryptedFile = getPathToFile(scanner);
 
-                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE);
+                    System.out.println(ENTER_PATH_TO_DECRYPTED_FILE_MESSAGE);
                     pathToDecryptedFile = getPathToFile(scanner);
 
                     bruteForceKey = getBruteForceKey(scanner);
 
                     CAESAR_CIPHER.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
 
-                    System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
+                    System.out.println(ConsoleText.RESULT_ACTION_MESSAGE + pathToDecryptedFile.toAbsolutePath());
                 }
             }
         }
+    }
+
+    private boolean isActionValid(String action) {
+        return !ENCRYPT_ACTION_KEY.equals(action) && !DECRYPT_ACTION_KEY.equals(action) && !BRUTE_FORCE_ACTION_KEY.equals(action);
     }
 
     private int getValidCipherKey(Scanner scanner) {
@@ -90,7 +94,7 @@ public class UserDialog {
         String keyString;
 
         while (true) {
-            System.out.println(ENTER_CIPHER_KEY + (ALPHABET_SIZE - 1));
+            System.out.println(ENTER_CIPHER_KEY_MESSAGE + (ALPHABET_SIZE - 1));
 
             keyString = scanner.nextLine();
             if (isInteger(keyString)) {
@@ -108,7 +112,7 @@ public class UserDialog {
         String stringKey;
 
         while (true) {
-            System.out.println(CHOISE_OF_BRUTE_FORCE_KEY);
+            System.out.println(CHOISE_OF_BRUTE_FORCE_KEY_MESSAGE);
             System.out.println(BRUTE_FORCE_KEYS_LIST);
 
             stringKey = scanner.nextLine();
