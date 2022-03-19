@@ -9,20 +9,12 @@ import java.util.Scanner;
 import static com.javarush.caesarcipher.dialog.ConsoleText.*;
 
 public class UserDialog {
-    public static final String ENCRYPT_ACTION_KEY = "E";
-    public static final String DECRYPT_ACTION_KEY = "D";
-    public static final String BRUTE_FORCE_ACTION_KEY = "B";
+    private static final String BRUTE_FORCE_KEYS_LIST = "%s - небольшой текст\n%s - средний текст\n%s - большой текст".formatted(SMALL_TEXT_KEY, MEDIUM_TEXT_KEY, LARGE_TEXT_KEY);
+    private static final String ACTIONS_LIST_TEXT = "%s - зашифровать файл\n%s - расшифровать файл по ключу\n%s - расшифровать файл подбором (brute force)".formatted(ENCRYPT_ACTION_KEY, DECRYPT_ACTION_KEY, BRUTE_FORCE_ACTION_KEY);
 
-    private static final String SMALL_TEXT_KEY = "S";
-    private static final String MEDIUM_TEXT_KEY = "M";
-    private static final String LARGE_TEXT_KEY = "XL";
+    private static final CaesarCipher CAESAR_CIPHER = CaesarCipher.getInstance();
 
-    public static final String BRUTE_FORCE_KEYS_LIST = "%s - небольшой текст\n%s - средний текст\n%s - большой текст".formatted(SMALL_TEXT_KEY, MEDIUM_TEXT_KEY, LARGE_TEXT_KEY);
-    public static final String ACTIONS_LIST_TEXT = "%s - зашифровать файл\n%s - расшифровать файл по ключу\n%s - расшифровать файл подбором (brute force)".formatted(ENCRYPT_ACTION_KEY, DECRYPT_ACTION_KEY, BRUTE_FORCE_ACTION_KEY);
-
-    private static final CaesarCipher caesarCipher = CaesarCipher.getInstance();
-
-    public static final int alphabetSize = caesarCipher.alphabetSize();
+    private static final int ALPHABET_SIZE = CAESAR_CIPHER.alphabetSize();
 
     private Path pathToDecryptedFile;
     private Path pathToEncryptedFile;
@@ -55,7 +47,7 @@ public class UserDialog {
 
                     cipherKey = getValidCipherKey(scanner);
 
-                    caesarCipher.encrypt(pathToDecryptedFile, pathToEncryptedFile, cipherKey);
+                    CAESAR_CIPHER.encrypt(pathToDecryptedFile, pathToEncryptedFile, cipherKey);
 
                     System.out.println(RESULT_ACTION + pathToEncryptedFile.toAbsolutePath());
                 }
@@ -70,7 +62,7 @@ public class UserDialog {
 
                     cipherKey = getValidCipherKey(scanner);
 
-                    caesarCipher.decrypt(pathToEncryptedFile, pathToDecryptedFile, cipherKey);
+                    CAESAR_CIPHER.decrypt(pathToEncryptedFile, pathToDecryptedFile, cipherKey);
 
                     System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
                 }
@@ -85,7 +77,7 @@ public class UserDialog {
 
                     bruteForceKey = getBruteForceKey(scanner);
 
-                    caesarCipher.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
+                    CAESAR_CIPHER.bruteForce(pathToEncryptedFile, pathToDecryptedFile, bruteForceKey);
 
                     System.out.println(ConsoleText.RESULT_ACTION + pathToDecryptedFile.toAbsolutePath());
                 }
@@ -98,13 +90,13 @@ public class UserDialog {
         String keyString;
 
         while (true) {
-            System.out.println(ENTER_CIPHER_KEY + (alphabetSize - 1));
+            System.out.println(ENTER_CIPHER_KEY + (ALPHABET_SIZE - 1));
 
             keyString = scanner.nextLine();
             if (isInteger(keyString)) {
                 key = Integer.parseInt(keyString);
 
-                if (key > 0 && key < alphabetSize) {
+                if (key > 0 && key < ALPHABET_SIZE) {
                     return key;
                 }
             }
