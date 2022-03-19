@@ -21,8 +21,5 @@ public class ConsoleText {
     public static final String ENCRYPT_ACTION_KEY = "E";
     public static final String DECRYPT_ACTION_KEY = "D";
     public static final String BRUTE_FORCE_ACTION_KEY = "B";
-    public static final String SMALL_TEXT_KEY = "S";
-    public static final String MEDIUM_TEXT_KEY = "M";
-    public static final String LARGE_TEXT_KEY = "XL";
 
 }
