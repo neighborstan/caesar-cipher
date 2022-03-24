@@ -1,5 +1,7 @@
 package com.javarush.caesarcipher.cipher;
 
+import com.javarush.caesarcipher.exceptions.CaesarCipherIOException;
+
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +23,7 @@ public class CaesarCipher {
             ": ", ". ", "! ", "? ", " - ", " у "
     );
 
-    private CaesarCipher() {
-    }
+    private CaesarCipher() {}
 
     public static CaesarCipher getInstance() {
         if (instance == null) {
@@ -31,7 +32,7 @@ public class CaesarCipher {
         return instance;
     }
 
-    public void encrypt(Path inputFilePath, Path outputFilePath, int cipherKey) {
+    public void encrypt(Path inputFilePath, Path outputFilePath, int cipherKey) throws CaesarCipherIOException {
         StringBuilder builderResultText = new StringBuilder();
 
         String decryptedText = FileProcessing.readString(inputFilePath);
@@ -48,7 +49,7 @@ public class CaesarCipher {
         FileProcessing.writeString(outputFilePath, builderResultText.toString());
     }
 
-    public void decrypt(Path inputFilePath, Path outputFilePath, int cipherKey) {
+    public void decrypt(Path inputFilePath, Path outputFilePath, int cipherKey) throws CaesarCipherIOException {
         StringBuilder builderResultText = new StringBuilder();
 
         String encryptedText = FileProcessing.readString(inputFilePath);
@@ -65,7 +66,7 @@ public class CaesarCipher {
         FileProcessing.writeString(outputFilePath, builderResultText.toString());
     }
 
-    public void bruteForce(Path inputFilePath, Path outputFilePath, int textSizeKey) {
+    public void bruteForce(Path inputFilePath, Path outputFilePath, int textSizeKey) throws CaesarCipherIOException {
         StringBuilder builderResultText = new StringBuilder();
 
         String encryptedText = FileProcessing.readString(inputFilePath);
@@ -97,15 +98,19 @@ public class CaesarCipher {
         }
     }
 
-    private boolean isDecryptedText(int keywordHitsCount, int textSizeKey, String text){
+    public int alphabetSize() {
+        return ALPHABET.size();
+    }
+
+    private boolean isDecryptedText(int keywordHitsCount, int textSizeKey, String text) {
         return (keywordHitsCount >= textSizeKey) && isLastSymbolValid(text);
     }
 
-    private boolean isLastSymbolValid(String text){
+    private boolean isLastSymbolValid(String text) {
         return text.endsWith(".") || text.endsWith("!") || text.endsWith("?");
     }
 
-    private int getKeywordHitsCount(String text){
+    private int getKeywordHitsCount(String text) {
         int keywordHitsCount = 0;
 
         for (String keyword : KEYWORDS) {
@@ -122,9 +127,5 @@ public class CaesarCipher {
 
     private char getAlphabetSymbol(int encodeSymbolIndex) {
         return ALPHABET.get(encodeSymbolIndex);
-    }
-
-    public int alphabetSize() {
-        return ALPHABET.size();
     }
 }
