@@ -1,6 +1,5 @@
 package com.javarush.caesarcipher.cipher;
 
-import com.javarush.caesarcipher.exceptions.CaesarCipherIOException;
 
 import java.nio.file.Path;
 import java.util.Arrays;
