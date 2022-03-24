@@ -56,9 +56,9 @@
 * `UserDialog` - описывает диалог с пользователем
 
 Пакет `exceptions` содержит классы исключений
-* `CaesarCipherIOException` - наследует `IOException`
-* `ReadFileException` - наследует `CaesarCipherIOException`, бросает ошибку чтения файла
-* `WriteFileException` - наследует `CaesarCipherIOException`, бросает ошибку записи файла
+* `CaesarCipherIOException` - наследуется от `RuntimeException`
+* `ReadFileException` - наследуется от `CaesarCipherIOException`, бросает ошибку чтения файла
+* `WriteFileException` - наследуется от `CaesarCipherIOException`, бросает ошибку записи файла
 
 класс `Main` - точка входа в программу  
 

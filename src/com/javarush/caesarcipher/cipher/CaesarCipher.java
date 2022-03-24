@@ -32,7 +32,7 @@ public class CaesarCipher {
         return instance;
     }
 
-    public void encrypt(Path inputFilePath, Path outputFilePath, int cipherKey) throws CaesarCipherIOException {
+    public void encrypt(Path inputFilePath, Path outputFilePath, int cipherKey) {
         StringBuilder builderResultText = new StringBuilder();
 
         String decryptedText = FileProcessing.readString(inputFilePath);
@@ -49,7 +49,7 @@ public class CaesarCipher {
         FileProcessing.writeString(outputFilePath, builderResultText.toString());
     }
 
-    public void decrypt(Path inputFilePath, Path outputFilePath, int cipherKey) throws CaesarCipherIOException {
+    public void decrypt(Path inputFilePath, Path outputFilePath, int cipherKey) {
         StringBuilder builderResultText = new StringBuilder();
 
         String encryptedText = FileProcessing.readString(inputFilePath);
@@ -66,7 +66,7 @@ public class CaesarCipher {
         FileProcessing.writeString(outputFilePath, builderResultText.toString());
     }
 
-    public void bruteForce(Path inputFilePath, Path outputFilePath, int textSizeKey) throws CaesarCipherIOException {
+    public void bruteForce(Path inputFilePath, Path outputFilePath, int textSizeKey) {
         StringBuilder builderResultText = new StringBuilder();
 
         String encryptedText = FileProcessing.readString(inputFilePath);

@@ -9,7 +9,7 @@ import java.nio.file.Path;
 
 public class FileProcessing {
 
-    public static String readString(Path pathToFile) throws ReadFileException {
+    public static String readString(Path pathToFile) {
         try {
             return Files.readString(pathToFile);
         } catch (IOException e) {
@@ -17,7 +17,7 @@ public class FileProcessing {
         }
     }
 
-    public static void writeString(Path pathToFile, String textString) throws WriteFileException {
+    public static void writeString(Path pathToFile, String textString) {
         try {
             Files.writeString(pathToFile, textString);
         } catch (IOException e) {
