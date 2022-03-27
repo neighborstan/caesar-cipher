@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TextSizeKey {
-    SMALL("S", 2),
-    MEDIUM("M", 5),
-    LARGE("XL", 8);
+    SMALL("S", 2, " - небольшой текст\n"),
+    MEDIUM("M", 5, " - средний текст\n"),
+    LARGE("XL", 8, " - большой текст");
 
+    private final String description;
     private final String stringKey;
     private final int key;
 
@@ -17,9 +18,10 @@ public enum TextSizeKey {
         }
     }};
 
-    TextSizeKey(String stringKey, int key) {
+    TextSizeKey(String stringKey, int key, String description) {
         this.stringKey = stringKey;
         this.key = key;
+        this.description = description;
     }
 
     public String getStringKey() {
@@ -30,5 +32,7 @@ public enum TextSizeKey {
         return KEYS;
     }
 
-
+    public String getDescription() {
+        return description;
+    }
 }

@@ -11,17 +11,8 @@ import static com.javarush.caesarcipher.dialog.ActionKey.*;
 import static com.javarush.caesarcipher.dialog.ConsoleText.*;
 
 public class UserDialog {
-    private final String BRUTE_FORCE_KEYS_LIST = "%s - небольшой текст\n%s - средний текст\n%s - большой текст"
-            .formatted(
-                    TextSizeKey.SMALL.getStringKey(),
-                    TextSizeKey.MEDIUM.getStringKey(),
-                    TextSizeKey.LARGE.getStringKey());
-
-    private final String ACTIONS_LIST_TEXT = "%s - зашифровать текст файла\n%s - расшифровать текст файла по ключу\n%s - расшифровать текст подбором (brute force)"
-            .formatted(
-                    ENCRYPT.getActionKey(),
-                    DECRYPT.getActionKey(),
-                    BRUTE_FORCE.getActionKey());
+    private final String BRUTE_FORCE_KEYS_LIST = getBruteForceKeysList();
+    private final String ACTIONS_LIST_TEXT = getActionsDescription();
 
     private final CaesarCipher CAESAR_CIPHER = CaesarCipher.getInstance();
 
@@ -32,48 +23,54 @@ public class UserDialog {
         System.out.println(HELLO_TEXT);
 
         try (Scanner scanner = new Scanner(System.in)) {
-            Path inputFilePath;
-            Path outputFilePath;
-            int cipherKey;
-
-            String actionKey = getActionKeyAsString(scanner);
-
-            if (ENCRYPT.getActionKey().equals(actionKey)) {
-                System.out.println(ENCRYPT.getActionMessage());
-
-                inputFilePath = getPathToFile(ENTER_PATH_TO_INPUT_FILE_MESSAGE, scanner);
-                outputFilePath = getPathToFile(ENTER_PATH_TO_OUTPUT_FILE_MESSAGE, scanner);
-                cipherKey = getValidCipherKey(scanner);
-
-                CAESAR_CIPHER.encrypt(inputFilePath, outputFilePath, cipherKey);
-
-                System.out.println(RESULT_ACTION_MESSAGE + outputFilePath.toAbsolutePath());
-
-            } else if (DECRYPT.getActionKey().equals(actionKey)) {
-                System.out.println(DECRYPT.getActionMessage());
-
-                inputFilePath = getPathToFile(ENTER_PATH_TO_INPUT_FILE_MESSAGE, scanner);
-                outputFilePath = getPathToFile(ENTER_PATH_TO_OUTPUT_FILE_MESSAGE, scanner);
-                cipherKey = getValidCipherKey(scanner);
-
-                CAESAR_CIPHER.decrypt(inputFilePath, outputFilePath, cipherKey);
-
-                System.out.println(RESULT_ACTION_MESSAGE + outputFilePath.toAbsolutePath());
-
-            } else if (BRUTE_FORCE.getActionKey().equals(actionKey)) {
-                System.out.println(BRUTE_FORCE.getActionMessage());
-
-                inputFilePath = getPathToFile(ENTER_PATH_TO_INPUT_FILE_MESSAGE, scanner);
-                outputFilePath = getPathToFile(ENTER_PATH_TO_OUTPUT_FILE_MESSAGE, scanner);
-                int bruteForceTextKey = getBruteForceTextKey(scanner);
-
-                CAESAR_CIPHER.bruteForce(inputFilePath, outputFilePath, bruteForceTextKey);
-
-                System.out.println(RESULT_ACTION_MESSAGE + outputFilePath.toAbsolutePath());
-            }
+            actionRun(scanner);
         } catch (CaesarCipherIOException e) {
             System.err.println(e);
         }
+    }
+
+    private void actionRun(Scanner scanner) {
+        String actionKey = getActionKeyAsString(scanner);
+        ActionKey action = ActionKey.getActionKeyAndActionName().get(actionKey);
+
+        System.out.println(action.getActionMessage());
+
+        Path inputFilePath = getPathToFile(ENTER_PATH_TO_INPUT_FILE_MESSAGE, scanner);
+        Path outputFilePath = getPathToFile(ENTER_PATH_TO_OUTPUT_FILE_MESSAGE, scanner);
+
+        if (ENCRYPT.getActionKey().equals(actionKey)) {
+            int cipherKey = getValidCipherKey(scanner);
+
+            CAESAR_CIPHER.encrypt(inputFilePath, outputFilePath, cipherKey);
+
+        } else if (DECRYPT.getActionKey().equals(actionKey)) {
+            int cipherKey = getValidCipherKey(scanner);
+
+            CAESAR_CIPHER.decrypt(inputFilePath, outputFilePath, cipherKey);
+
+        } else if (BRUTE_FORCE.getActionKey().equals(actionKey)) {
+            int bruteForceTextKey = getBruteForceTextKey(scanner);
+
+            CAESAR_CIPHER.bruteForce(inputFilePath, outputFilePath, bruteForceTextKey);
+        }
+
+        System.out.println(RESULT_ACTION_MESSAGE + outputFilePath.toAbsolutePath());
+    }
+
+    private String getBruteForceKeysList() {
+        StringBuilder builder = new StringBuilder();
+        for (TextSizeKey value : TextSizeKey.values()) {
+            builder.append(value.getStringKey()).append(value.getDescription());
+        }
+        return builder.toString();
+    }
+
+    private String getActionsDescription() {
+        StringBuilder builder = new StringBuilder();
+        for (ActionKey value : ActionKey.values()) {
+            builder.append(value.getActionKey()).append(value.getActionDescription());
+        }
+        return builder.toString();
     }
 
     private boolean isActionKeyValid(String actionKey) {
@@ -83,7 +80,7 @@ public class UserDialog {
     private String getActionKeyAsString(Scanner scanner) {
         String action;
         do {
-            System.out.println(CHOISE_OF_ACTION_MESSAGE);
+            System.out.println(CHOOSE_OF_ACTION_MESSAGE);
             System.out.println(ACTIONS_LIST_TEXT);
 
             action = scanner.nextLine();
@@ -109,11 +106,11 @@ public class UserDialog {
 
     private int getBruteForceTextKey(Scanner scanner) {
         String stringKey;
-        System.out.println(CHOISE_OF_BRUTE_FORCE_KEY_MESSAGE);
+        System.out.println(CHOOSE_OF_BRUTE_FORCE_KEY_MESSAGE);
         System.out.println(BRUTE_FORCE_KEYS_LIST);
 
         while (!TextSizeKey.getKeys().containsKey(stringKey = scanner.nextLine())) {
-            System.out.println(CHOISE_OF_BRUTE_FORCE_KEY_MESSAGE);
+            System.out.println(CHOOSE_OF_BRUTE_FORCE_KEY_MESSAGE);
             System.out.println(BRUTE_FORCE_KEYS_LIST);
         }
         return TextSizeKey.getKeys().get(stringKey);
